@@ -12,7 +12,7 @@ class CompareItem extends Component {
     this.state = {
       selectedItemsCount: [0],
       selectedOption: null,
-      rowHeaders: []
+      rowHeaders: [],
     };
   }
 
@@ -20,25 +20,26 @@ class CompareItem extends Component {
     this.props.getFeatureList();
   }
 
-  onSelectItem = selectedItem => {
+  onSelectItem = (selectedItem) => {
     const index = this.props.itemList.findIndex(
-      item => item.value === selectedItem.value
+      (item) => item.value === selectedItem.value
     );
     const removeCurrentItemFromList = this.props.itemList.splice(
-      index - (index - 1)
+      index,
+      index + 1
     );
     const oldItemList = this.state.selectedItemsCount;
     if (oldItemList.length <= 4) {
-      oldItemList.push(this.props.itemList);
-      this.props.setItemList(removeCurrentItemFromList);
+      oldItemList.push(removeCurrentItemFromList);
+      this.props.setItemList(this.props.itemList);
     }
     const subHeaderFeatureList = [];
-    this.props.featuresList.forEach(subHeader => {
+    this.props.featuresList.forEach((subHeader) => {
       subHeaderFeatureList.push(subHeader.title);
     });
     this.setState({
       selectedOption: { ...selectedItem },
-      selectedItemsCount: oldItemList
+      selectedItemsCount: oldItemList,
     });
   };
 
@@ -168,15 +169,15 @@ class CompareItem extends Component {
   }
 }
 
-const mapStateToProps = store => {
+const mapStateToProps = (store) => {
   return {
     featuresList: store.reducer.featuresList,
     itemList: store.reducer.itemList,
-    compareSummary: store.reducer.compareSummary
+    compareSummary: store.reducer.compareSummary,
   };
 };
 const mapActionToProps = {
   getFeatureList: FeatureListActions.getFeatureList,
-  setItemList: FeatureListActions.setItemList
+  setItemList: FeatureListActions.setItemList,
 };
 export default connect(mapStateToProps, mapActionToProps)(CompareItem);
