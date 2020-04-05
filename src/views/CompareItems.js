@@ -30,11 +30,7 @@ class CompareItem extends Component {
     );
 
     //removing the selected item from the main itemList
-    const removeCurrentItemFromList = this.props.itemList.splice(
-      index,
-      index + 1
-    );
-
+    const removeCurrentItemFromList = this.props.itemList.splice(index, 1);
     //logic for show only Diff
     let tempFeatureList = cloneDeep(this.props.featuresList);
     tempFeatureList.forEach((highLvlFeatureList) => {
@@ -120,7 +116,7 @@ class CompareItem extends Component {
                         );
                         const removeCurrentItemFromList = this.state.selectedItemsCount.splice(
                           index,
-                          index + 1
+                          1
                         )[0];
                         const currentSeletedItems = this.state
                           .selectedItemsCount;
@@ -129,6 +125,11 @@ class CompareItem extends Component {
                           ...removeCurrentItemFromList[0],
                         });
                         this.props.setItemList(currentOptions);
+                        if (currentSeletedItems.length === 1) {
+                          this.setState({
+                            selectedOption: null,
+                          });
+                        }
                         this.setState({
                           selectedItemsCount: currentSeletedItems,
                         });
@@ -170,6 +171,7 @@ class CompareItem extends Component {
             })
           ) : (
             this.state.selectedItemsCount.map((item, ind) => {
+              console.log(item);
               if (ind < this.state.selectedItemsCount.length - 1) {
                 return (
                   <div className="listStyling" key={ind}>
@@ -177,7 +179,7 @@ class CompareItem extends Component {
                       className="clearItem"
                       onClick={() => {
                         const index = this.state.selectedItemsCount.findIndex(
-                          (item, i) => {
+                          (item) => {
                             return (
                               item &&
                               item[0].value ===
@@ -196,6 +198,11 @@ class CompareItem extends Component {
                           ...removeCurrentItemFromList[0],
                         });
                         this.props.setItemList(currentOptions);
+                        if (currentSeletedItems.length === 1) {
+                          this.setState({
+                            selectedOption: null,
+                          });
+                        }
                         this.setState({
                           selectedItemsCount: currentSeletedItems,
                         });
@@ -225,6 +232,7 @@ class CompareItem extends Component {
                   </div>
                 );
               }
+              return "";
             })
           )}
         </div>

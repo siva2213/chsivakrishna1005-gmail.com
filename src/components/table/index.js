@@ -9,12 +9,12 @@ export default (props) => {
         props.rows.map((row, ind) => {
           return props.colId === 0 ? (
             <>
-              <tr>
+              <tr key={ind}>
                 <div className="featureHeader"> {row.title}</div>
               </tr>
               {row.features.map((subRow, ind1) => {
                 return (
-                  <tr>
+                  <tr key={ind1}>
                     <div className="featureItems">{subRow.featureName}</div>
                   </tr>
                 );
@@ -22,12 +22,12 @@ export default (props) => {
             </>
           ) : (
             <>
-              <tr>
+              <tr key={ind}>
                 <div className="featureHeader"> &nbsp;</div>
               </tr>
               {row.features.map((subRow, ind1) => {
                 return (
-                  <tr>
+                  <tr key={ind1}>
                     <div className="featureItems">
                       {subRow &&
                         subRow.values &&
