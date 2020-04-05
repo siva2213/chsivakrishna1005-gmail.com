@@ -1,7 +1,7 @@
 import React from "react";
 import "./index.css";
 
-export default props => {
+export default (props) => {
   return (
     <table style={{ border: "1px solid #f5f5f5" }}>
       {props.rows &&
@@ -29,7 +29,9 @@ export default props => {
                 return (
                   <tr>
                     <div className="featureItems">
-                      {subRow.values[props.selectedItemKey[0].value]}
+                      {subRow &&
+                        subRow.values &&
+                        subRow.values[props.selectedItemKey[0].value]}
                     </div>
                   </tr>
                 );

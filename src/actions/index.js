@@ -1,21 +1,21 @@
 import api from "../axios";
 
 const featureListActions = {
-  getFeatureList: payload => {
-    return dispatch => {
+  getFeatureList: (payload) => {
+    return (dispatch) => {
       return api({
         url: `/5e86ec5531000011d8814754`,
-        method: "GET"
+        method: "GET",
       })
-        .then(resp => {
+        .then((resp) => {
           const data = resp.products;
           dispatch({
             type: "COMPARE_SUMMARY",
-            value: data.compareSummary
+            value: data.compareSummary,
           });
           dispatch({
             type: "SET_FEATURE_LIST",
-            value: data.featuresList
+            value: data.featuresList,
           });
           const itemList = [];
           const titles = data.compareSummary.titles;
@@ -29,23 +29,23 @@ const featureListActions = {
           }
           dispatch({
             type: "SET_ITEM_LIST",
-            value: itemList
+            value: itemList,
           });
           return data;
         })
-        .catch(err => {
+        .catch((err) => {
           return err;
         });
     };
   },
-  setItemList: payload => {
-    return dispatch => {
+  setItemList: (payload) => {
+    return (dispatch) => {
       dispatch({
         type: "SET_ITEM_LIST",
-        value: payload
+        value: payload,
       });
     };
-  }
+  },
 };
 
 export default featureListActions;

@@ -5,6 +5,7 @@ import Table from "../components/table";
 import ItemSelection from "../components/selectBox";
 import ItemSummary from "../components/itemSummary";
 import "./CompareItems.css";
+import { cloneDeep } from "lodash";
 
 class CompareItem extends Component {
   constructor(props) {
@@ -13,6 +14,8 @@ class CompareItem extends Component {
       selectedItemsCount: [0],
       selectedOption: null,
       rowHeaders: [],
+      tempFeatureList: [],
+      isShowOnlyDiff: false,
     };
   }
 
@@ -21,25 +24,49 @@ class CompareItem extends Component {
   }
 
   onSelectItem = (selectedItem) => {
+    //finding index of selected item
     const index = this.props.itemList.findIndex(
       (item) => item.value === selectedItem.value
     );
+
+    //removing the selected item from the main itemList
     const removeCurrentItemFromList = this.props.itemList.splice(
       index,
       index + 1
     );
+
+    //logic for show only Diff
+    let tempFeatureList = cloneDeep(this.props.featuresList);
+    tempFeatureList.forEach((highLvlFeatureList) => {
+      highLvlFeatureList.features.forEach((subLvlFeatureList) => {
+        let values = Object.values(subLvlFeatureList.values);
+        let flag = values.every((itemVal) => {
+          return itemVal === subLvlFeatureList.values[selectedItem.value];
+        });
+        if (flag) {
+          delete subLvlFeatureList.values;
+          delete subLvlFeatureList.featureName;
+        }
+      });
+    });
+
+    //updating the selected itemlist according to the,
+    //items should shown less than or equal to 4
     const oldItemList = this.state.selectedItemsCount;
     if (oldItemList.length <= 4) {
       oldItemList.push(removeCurrentItemFromList);
       this.props.setItemList(this.props.itemList);
     }
-    const subHeaderFeatureList = [];
-    this.props.featuresList.forEach((subHeader) => {
-      subHeaderFeatureList.push(subHeader.title);
-    });
     this.setState({
       selectedOption: { ...selectedItem },
       selectedItemsCount: oldItemList,
+      tempFeatureList: tempFeatureList,
+    });
+  };
+
+  onShowOnlyDiff = () => {
+    this.setState({
+      isShowOnlyDiff: !this.state.isShowOnlyDiff,
     });
   };
 
@@ -60,7 +87,7 @@ class CompareItem extends Component {
         <div className="select">
           <div className="showDiffStyle">
             <div>
-              <input type="checkbox" />
+              <input type="checkbox" onChange={this.onShowOnlyDiff} />
             </div>
             <div style={{ paddingLeft: "0.5rem" }}>Show Only Differences</div>
           </div>
@@ -79,7 +106,36 @@ class CompareItem extends Component {
               if (ind < this.state.selectedItemsCount.length - 1) {
                 return (
                   <div className="listStyling" key={ind}>
-                    <div className="clearItem">x</div>
+                    <div
+                      className="clearItem"
+                      onClick={() => {
+                        const index = this.state.selectedItemsCount.findIndex(
+                          (item, i) => {
+                            return (
+                              item &&
+                              item[0].value ===
+                                this.state.selectedItemsCount[ind + 1][0].value
+                            );
+                          }
+                        );
+                        const removeCurrentItemFromList = this.state.selectedItemsCount.splice(
+                          index,
+                          index + 1
+                        )[0];
+                        const currentSeletedItems = this.state
+                          .selectedItemsCount;
+                        const currentOptions = this.props.itemList;
+                        currentOptions.push({
+                          ...removeCurrentItemFromList[0],
+                        });
+                        this.props.setItemList(currentOptions);
+                        this.setState({
+                          selectedItemsCount: currentSeletedItems,
+                        });
+                      }}
+                    >
+                      x
+                    </div>
                     <ItemSummary
                       imageUrl={
                         this.props.compareSummary.images[
@@ -117,7 +173,36 @@ class CompareItem extends Component {
               if (ind < this.state.selectedItemsCount.length - 1) {
                 return (
                   <div className="listStyling" key={ind}>
-                    <div className="clearItem">x</div>
+                    <div
+                      className="clearItem"
+                      onClick={() => {
+                        const index = this.state.selectedItemsCount.findIndex(
+                          (item, i) => {
+                            return (
+                              item &&
+                              item[0].value ===
+                                this.state.selectedItemsCount[ind + 1][0].value
+                            );
+                          }
+                        );
+                        const removeCurrentItemFromList = this.state.selectedItemsCount.splice(
+                          index,
+                          index + 1
+                        )[0];
+                        const currentSeletedItems = this.state
+                          .selectedItemsCount;
+                        const currentOptions = this.props.itemList;
+                        currentOptions.push({
+                          ...removeCurrentItemFromList[0],
+                        });
+                        this.props.setItemList(currentOptions);
+                        this.setState({
+                          selectedItemsCount: currentSeletedItems,
+                        });
+                      }}
+                    >
+                      x
+                    </div>
                     <ItemSummary
                       imageUrl={
                         this.props.compareSummary.images[
@@ -145,19 +230,33 @@ class CompareItem extends Component {
         </div>
         {this.state.selectedItemsCount.length > 1 ? (
           <div className="table-container">
-            {this.state.selectedItemsCount &&
-              this.state.selectedItemsCount.length <= 5 &&
-              this.state.selectedItemsCount.map((selectedItem, ind) => {
-                return (
-                  <div key={ind}>
-                    <Table
-                      colId={ind}
-                      rows={this.props.featuresList}
-                      selectedItemKey={selectedItem}
-                    />
-                  </div>
-                );
-              })}
+            {this.state.isShowOnlyDiff
+              ? this.state.selectedItemsCount &&
+                this.state.selectedItemsCount.length <= 5 &&
+                this.state.selectedItemsCount.map((selectedItem, ind) => {
+                  return (
+                    <div key={ind}>
+                      <Table
+                        colId={ind}
+                        rows={this.state.tempFeatureList}
+                        selectedItemKey={selectedItem}
+                      />
+                    </div>
+                  );
+                })
+              : this.state.selectedItemsCount &&
+                this.state.selectedItemsCount.length <= 5 &&
+                this.state.selectedItemsCount.map((selectedItem, ind) => {
+                  return (
+                    <div key={ind}>
+                      <Table
+                        colId={ind}
+                        rows={this.props.featuresList}
+                        selectedItemKey={selectedItem}
+                      />
+                    </div>
+                  );
+                })}
           </div>
         ) : (
           <div align="center" className="NoData">
